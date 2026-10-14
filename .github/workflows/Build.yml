@@ -4,6 +4,9 @@ name: Build APK
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,16 +21,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Instalar Gradle
+      - name: Configurar Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
+      - name: Verificar arquivos
+        run: |
+          echo "Arquivos na raiz:"
+          ls -la
+          echo "Arquivos do aplicativo:"
+          ls -la app
+
       - name: Gerar APK
         run: gradle assembleDebug
 
-      - name: Salvar APK
+      - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
           name: contador-levantamentos-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
